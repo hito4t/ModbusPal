@@ -11,9 +11,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.ServiceLoader;
 import javax.xml.parsers.ParserConfigurationException;
 import modbuspal.automation.Automation;
 import modbuspal.automation.NullAutomation;
@@ -106,11 +108,15 @@ implements ModbusPalXML
         bindingFactory.add( new modbuspal.binding.Binding_SINT16() );
         bindingFactory.add( new modbuspal.binding.Binding_SINT32() );
         bindingFactory.add( new modbuspal.binding.Binding_FLOAT32() );
+        /*
         generatorFactory.add( new modbuspal.generator.linear.LinearGenerator() );
         generatorFactory.add( new modbuspal.generator.random.RandomGenerator() );
         generatorFactory.add( new modbuspal.generator.sine.SineGenerator() );
-
-
+        */
+        ServiceLoader<Generator> serviceLoader = ServiceLoader.load(Generator.class);
+        for (Iterator<Generator> i = serviceLoader.iterator(); i.hasNext();) {
+            generatorFactory.add(i.next());
+        }
     }
 
     private ModbusPalProject(Document doc, File source)
