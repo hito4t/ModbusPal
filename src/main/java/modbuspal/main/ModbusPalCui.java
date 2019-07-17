@@ -1,7 +1,11 @@
 package modbuspal.main;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import modbuspal.automation.Automation;
 import modbuspal.link.ModbusLink;
@@ -16,6 +20,8 @@ import modbuspal.slave.ModbusSlave;
 import modbuspal.slave.ModbusSlaveAddress;
 
 public class ModbusPalCui {
+    
+    private static Logger logger = Logger.getLogger(ModbusPalCui.class.getName());
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
@@ -23,12 +29,21 @@ public class ModbusPalCui {
             System.exit(1);
         }
         
+        File loggingPropertiesfile = new File("logging.properties");
+        if (!loggingPropertiesfile.exists()) {
+            System.err.println("logging.properties doesn't exist.");
+        } else {
+            try (InputStream in = new FileInputStream(loggingPropertiesfile)) {
+                LogManager.getLogManager().readConfiguration(in);
+            }
+        }
+        
         File file = new File(args[0]);
         
         ModbusPalProject project = ModbusPalProject.load(file);
         System.out.println("Slaves:");
         for (ModbusSlave slave : project.getModbusSlaves()) {
-            System.out.println(String.format("  Slave ID=%s, Name=%s", slave.getSlaveId(), slave.getName()));
+            logger.info(String.format("  Slave ID=%s, Name=%s", slave.getSlaveId(), slave.getName()));
         }
         
         for (Automation automation : project.getAutomations()) {
@@ -39,7 +54,7 @@ public class ModbusPalCui {
         link.start(new ModbusLinkListener() {
             @Override
             public void linkBroken() {
-                System.out.println("linkBroken.");
+                logger.info("linkBroken.");
             }
         });
         
@@ -53,7 +68,7 @@ public class ModbusPalCui {
                     }
                     builder.append(String.format("(%d: %d)", registers.getAddressOf(i) + 1, registers.getValue(i)));
                 }
-                System.out.println(String.format("Slave %s : %s", slave.getName(), builder.toString()));
+                logger.info(String.format("Slave %s : %s", slave.getName(), builder.toString()));
             }
             
             Thread.sleep(1000);

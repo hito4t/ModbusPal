@@ -12,13 +12,16 @@
 package modbuspal.main;
 
 import java.awt.BorderLayout;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.net.URL;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.logging.LogManager;
+
 import javax.swing.*;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
+
 import modbuspal.link.ModbusSerialLink;
 import modbuspal.toolkit.FileTools;
 
@@ -55,10 +58,20 @@ public class ModbusPalGui
     }
     
     /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) 
+     * @param args the command line arguments
+     * @throws Exception 
+     */
+    public static void main(String args[]) throws Exception 
     {
+        File loggingPropertiesfile = new File("logging.properties");
+        if (!loggingPropertiesfile.exists()) {
+            System.err.println("logging.properties doesn't exist.");
+        } else {
+            try (InputStream in = new FileInputStream(loggingPropertiesfile)) {
+                LogManager.getLogManager().readConfiguration(in);
+            }
+        }
+
         boolean runInstall = false;
         boolean runGui = true;
         
