@@ -19,16 +19,11 @@ import modbuspal.slave.ModbusRegisters;
 import modbuspal.slave.ModbusSlave;
 import modbuspal.slave.ModbusSlaveAddress;
 
-public class ModbusPalCui {
+public class ModbusPalMain {
     
-    private static Logger logger = Logger.getLogger(ModbusPalCui.class.getName());
+    private static Logger logger = Logger.getLogger(ModbusPalMain.class.getName());
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 1) {
-            System.err.println("You need to specify ModbusPal project file.");
-            System.exit(1);
-        }
-        
         File loggingPropertiesfile = new File("logging.properties");
         if (!loggingPropertiesfile.exists()) {
             System.err.println("logging.properties doesn't exist.");
@@ -36,6 +31,16 @@ public class ModbusPalCui {
             try (InputStream in = new FileInputStream(loggingPropertiesfile)) {
                 LogManager.getLogManager().readConfiguration(in);
             }
+        }
+        
+        if (args.length < 1) {
+            ModbusPalGui.run();
+            return;
+        }
+        
+        if (args[0].equals("-install")) {
+            ModbusPalGui.install();
+            return;
         }
         
         File file = new File(args[0]);

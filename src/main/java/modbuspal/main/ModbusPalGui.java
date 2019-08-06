@@ -57,6 +57,17 @@ public class ModbusPalGui
         ModbusSerialLink.install();
     }
     
+    public static void run()
+    {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                //setNativeLookAndFeel();
+                newFrame().setVisible(true);
+            }
+        });
+    }
+
     /**
      * @param args the command line arguments
      * @throws Exception 
@@ -93,15 +104,8 @@ public class ModbusPalGui
         
         if( runGui == true )
         {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    //setNativeLookAndFeel();
-                    newFrame().setVisible(true);
-                }
-            });
+            run();
         }
-        
         
     }
 
