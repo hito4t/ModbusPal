@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JPanel;
 
@@ -16,9 +18,13 @@ import modbuspal.toolkit.XMLTools;
 
 public class FileGenerator extends Generator {
     
+    private static Logger logger = Logger.getLogger(FileGenerator.class.getName());
+
     private FileControlPanel panel;
     String fileName = "";
     String propertyName = "";
+    
+    private double lastValue = 0;
     
     public FileGenerator() {
         panel = new FileControlPanel(this);
@@ -26,18 +32,33 @@ public class FileGenerator extends Generator {
 
     @Override
     public double getValue(double time) {
+        double value;
         try {
-            Properties properties = new Properties();
-            try (InputStream in = new FileInputStream(fileName)) {
-                properties.load(in);
-            }
-            String value = properties.getProperty(propertyName);
-            return Double.parseDouble(value);
+            value = getValue();
             
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
+        } catch (Exception e1) {
+            try {
+                // retry once
+                value = getValue();
+                
+            } catch (Exception e2) {
+                e2.printStackTrace();
+                logger.log(Level.WARNING, e2.getMessage(), e2);
+                return lastValue;
+            }
         }
+        
+        lastValue = value;
+        return value;
+    }
+    
+    private double getValue() throws Exception {
+        Properties properties = new Properties();
+        try (InputStream in = new FileInputStream(fileName)) {
+            properties.load(in);
+        }
+        String value = properties.getProperty(propertyName);
+        return Double.parseDouble(value);
     }
 
     @Override
